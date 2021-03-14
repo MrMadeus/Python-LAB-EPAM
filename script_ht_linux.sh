@@ -6,15 +6,8 @@ echo
 
 echo Start configure SSH
 echo Set the port for SSH
-#while [ 1 ]; do                                        #in this part script doesn't work, thats why I comment it
 read PortSSH
-#if [[ $PortSSH = '^[0-9]+$' ]]; then
-#break
-#else echo "Port shoud be a number"
-#fi
-#done;
-sed -e "s/#Port 22/Port $PortSSH/; s/#PermitRootLogin yes/PermitRootLogin no/" /etc/ssh/sshd_config 1>sshd_config
-cp -f sshd_config /etc/ssh
+sed -i "s/#Port 22/Port $PortSSH/; s/#PermitRootLogin yes/PermitRootLogin no/" /etc/ssh/sshd_config
 service sshd restart
 iptables -A INPUT -p tcp --dport $PortSSH -j ACCEPT
 echo SSH configured. Port $PortSSH.
@@ -39,19 +32,23 @@ fdisk -l | grep "Disk /dev/sd"
 echo
 echo "How many discs do you need for RAID (no less than 3)"
 read DiscQty
-DiscWays=()
-while [ $DiscQty -gt 2 ];
-do
-read -p "Enter way to disc $DiscQty: " DiscWay
-if test -e $DiscWay; then
-DiscWays+=$DiscWay
-DiscQty=$(($DiscQty-1))
-else
-echo Wrong way
-fi
+DiscPaths=()
+while [ $DiscQty -gt 0 ]; do
+  read -p "Enter way to disc $DiscQty: " DiscPath
+  if test -e $DiscPath; then
+    DiscPaths+=$DiscPath
+    DiscPaths+=" "
+    DiscQty=$(($DiscQty-1))
+  else
+    echo Wrong way
+  fi
 done
 yum install mdadm -y
-mdadm --create --verbose /dev/md0 --level=5 --raid-devices=3 /dev/sdb /dev/sdc /dev/sdd
+  lvremove /dev/vg01                                   #clean up in case script was running before
+  vgremove vg01
+  mdadm --stop /dev/md0
+  mdadm --zero-superblock $DiscPaths
+mdadm --create --verbose /dev/md0 --level=5 --raid-devices=3 $DiscPaths
 echo RAID DONE
 pvcreate /dev/md0
 vgcreate vg01 /dev/md0
@@ -63,12 +60,14 @@ echo
 echo Mounting volume
 echo Set mounting point
 while [ 1 ]; do
-read MountPoint
-if test -e $MountPoint; then
-mount /dev/vg10/lvol0 $MountPoint
-break
-else echo "Mounting point doesn't exist"
-fi
+  read MountPoint
+  if test -e $MountPoint; then
+    mount /dev/vg10/lvol0 $MountPoint
+    break
+  else
+    echo "Mounting point doesn't exist. It will be ctreate"
+    mkdir -p $MountPoint
+  fi
 done
 
 echo Setting NFS folder
