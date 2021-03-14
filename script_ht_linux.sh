@@ -36,10 +36,10 @@ echo
 echo Avaliable physical discs
 fdisk -l | grep "Disk /dev/sd"
 echo
-echo "How many discs do you need for RAID (no more than 3)"
+echo "How many discs do you need for RAID (no less than 3)"
 read DiscQty
 DiscWays=()
-while [ $DiscQty -gt 0 ];
+while [ $DiscQty -gt 2 ];
 do
 read -p "Enter way to disc $DiscQty: " DiscWay
 if test -e $DiscWay; then
