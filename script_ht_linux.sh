@@ -15,6 +15,7 @@ read PortSSH
 #done;
 sed -e "s/#Port 22/Port $PortSSH/; s/#PermitRootLogin yes/PermitRootLogin no/" /etc/ssh/sshd_config 1>sshd_config
 cp -f sshd_config /etc/ssh
+service sshd restart
 iptables -A INPUT -p tcp --dport $PortSSH -j ACCEPT
 echo SSH configured. Port $PortSSH.
 echo
