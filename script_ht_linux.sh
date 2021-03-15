@@ -34,13 +34,13 @@ echo "How many discs do you need for RAID (no less than 3)"
 read DiscQty
 DiscPaths=()
 while [ $DiscQty -gt 0 ]; do
-  read -p "Enter way to disc $DiscQty: " DiscPath
+  read -p "Enter path to disc $DiscQty: " DiscPath
   if test -e $DiscPath; then
     DiscPaths+=$DiscPath
     DiscPaths+=" "
     DiscQty=$(($DiscQty-1))
   else
-    echo Wrong way
+    echo Wrong path
   fi
 done
 yum install mdadm -y | tee -a /log_script_ht
