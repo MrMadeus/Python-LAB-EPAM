@@ -1,3 +1,10 @@
+#function clean up the RAID and LVM
+function removeraid {
+  lvremove /dev/vg01
+  vgremove vg01
+  mdadm --stop /dev/md0
+  mdadm --zero-superblock $DiscPaths}
+
 echo Start configure Network && echo Network | tee /log_script_ht
 ip a add 192.168.56.8/24 dev enp0s3
 ip a | tee -a /log_script_ht
@@ -44,11 +51,6 @@ while [ $DiscQty -gt 0 ]; do
   fi
 done
 yum install mdadm -y | tee -a /log_script_ht
-  function removeraid {                                           #clean up the RAID and LVM
-    lvremove /dev/vg01
-    vgremove vg01
-    mdadm --stop /dev/md0
-    mdadm --zero-superblock $DiscPaths}
 if mdadm --detail --scan --verbose then removeraid fi           #if RAID exist - removing
 mdadm --create --verbose /dev/md0 --level=5 --raid-devices=3 $DiscPaths | tee -a /log_script_ht
 
