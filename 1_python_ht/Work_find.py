@@ -28,8 +28,16 @@ def main():
 	for link in start_soup.find_all('a', href=True):
 		if link['href'][0:18] == 'https://rabota.by/':
 			vacancies.append(jobs(link['href'], search_words))
+	sum_word_count = {a: 0 for a in search_words}
+	c = 0
 	for j in vacancies:
+		for k, v in j.count_words().items():
+			sum_word_count[k] += v
 		print(j.link, ': ', j.count_words())
+		c += 1
+	for k, v in sum_word_count.items():
+		sum_word_count[k] = v / c
+	print('Average number of words: ', sum_word_count)
 
 if __name__ == "__main__":
 	main()
