@@ -1,4 +1,3 @@
-import requests as req
 from page_parser import page_parser as pp
 from bs4 import BeautifulSoup
 
