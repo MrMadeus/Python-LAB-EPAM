@@ -1,0 +1,4 @@
+pytest
+bs4
+requests
+lxml
