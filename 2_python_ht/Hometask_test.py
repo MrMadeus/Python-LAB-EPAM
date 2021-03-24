@@ -43,7 +43,7 @@ def count_words(job_url, search_words):
 				word_counter[w] += 1
 	return word_counter
 
-def average_count(search_word, compare_words):
+def get_links(search_word):
 	start_url = 'https://rabota.by/search/vacancy?area=1002&fromSearchLine=true&st=searchVacancy&text='
 
 	start_page = pp.get_page(start_url + search_word)
@@ -51,17 +51,27 @@ def average_count(search_word, compare_words):
 	vacancies = []
 	for link in start_soup.find_all('a', href=True):
 		if link['href'][0:18] == 'https://rabota.by/':
-			vacancies.append(jobs(link['href'], search_words))
-	sum_word_count = {a: 0 for a in search_words}
+			vacancies.append(link['href'])
+	return vacancies
+
+def average_count(compare_words):
+	sum_word_count = {a: 0 for a in compare_words}
 	c = 0
-	for j in vacancies:
-		for k, v in j.count_words().items():
+	for j in get_links('python'):
+		for k, v in count_words(j, compare_words).items():
 			sum_word_count[k] += v
-		print(j.link, ': ', j.count_words())
 		c += 1
 	for k, v in sum_word_count.items():
-		sum_word_count[k] = v / c
+		sum_word_count[k] = round(v / c)
 	return sum_word_count
+
+def test_ocurence():
+	words_for_compare = ['python', 'linux', 'flask']
+	compare_average = average_count(words_for_compare)
+	for i in get_links('python'):
+		compare_in_link = count_words(i, words_for_compare)
+		for k in words_for_compare:
+			assert abs(compare_average[k] - compare_in_link[k]) == 1
 
 if __name__ == "__main__":
 	main()
