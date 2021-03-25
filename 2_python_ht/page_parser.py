@@ -1,6 +1,6 @@
 import requests
 
-class page_parser:
+class PageParser:
 	def get_page(url_in):
 		url_in = url_in.rstrip()
 		target = requests.get(url_in, headers={'User-Agent': 'Custom'})
@@ -8,6 +8,3 @@ class page_parser:
 			return False
 		page = target.text
 		return page
-
-if __name__ == "__main__":
-	main()
